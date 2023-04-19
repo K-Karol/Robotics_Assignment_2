@@ -1,14 +1,35 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using KarolK72.LegoAssignment.Library.Commands;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace KarolK72.LegoAssignment.Library
 {
+    public class UpstreamCommandRegistered
+    {
+        public Type CommandType { get; set; }
+        public Func<IUpstreamCommand, Task> Handler { get; set; }
+    }
+
+
+    public class RegisteredClassDisposable : IDisposable
+    {
+        private Action _deleteRegisteredCommandAction;
+        public RegisteredClassDisposable(Action deleteRegisteredCommandAction) {
+            _deleteRegisteredCommandAction = deleteRegisteredCommandAction;
+        }
+        public void Dispose()
+        {
+            _deleteRegisteredCommandAction.Invoke();
+        }
+    }
+
     public class ConcreteEV3CommunicationService : IEV3CommunicationService
     {
         private readonly ILogger<ConcreteEV3CommunicationService> _logger;
@@ -16,6 +37,9 @@ namespace KarolK72.LegoAssignment.Library
         private bool disposedValue;
         private Thread? _readingThread = null;
         private CancellationTokenSource? _cts = null;
+
+        private Dictionary<int, UpstreamCommandRegistered> _registeredCommands = new Dictionary<int, UpstreamCommandRegistered>();
+
         public ConcreteEV3CommunicationService(ILogger<ConcreteEV3CommunicationService> logger)
         {
             _logger = logger;
@@ -23,15 +47,21 @@ namespace KarolK72.LegoAssignment.Library
 
         public async Task Connect(string url, int port)
         {
+            _logger.LogInformation("1");
             IPHostEntry ipHostInfo = await Dns.GetHostEntryAsync(url);
+            _logger.LogInformation("2");
             IPAddress? ipAddress = ipHostInfo.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
-            if(ipAddress is null)
+            _logger.LogInformation("3");
+            if (ipAddress is null)
             {
                 ipAddress = ipHostInfo.AddressList.First();
             }
             IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, port);
+            _logger.LogInformation("4");
             _socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            _logger.LogInformation("5");
             await _socket.ConnectAsync(ipEndPoint);
+            _logger.LogInformation("6");
             _cts = new CancellationTokenSource();
             _readingThread = new Thread(() => readingThread(_cts.Token));
             _readingThread.Start();
@@ -57,6 +87,21 @@ namespace KarolK72.LegoAssignment.Library
             string payloadStr = payload.ToString();
             byte[] buffer = Encoding.UTF8.GetBytes(payloadStr);
             return _socket!.SendAsync(buffer, SocketFlags.None);
+        }
+
+        public IDisposable? RegisterHandler(Type commandType, Func<IUpstreamCommand, Task> handler)
+        {
+            var attribute = commandType.GetCustomAttribute<CommandAttribute>();
+            if (attribute is null)
+                throw new Exception($"{commandType.Name} does not have an {nameof(CommandAttribute)} attribute");
+
+            if (_registeredCommands.ContainsKey(attribute.CommandID))
+            {
+                return null;
+            }
+
+            _registeredCommands.Add(attribute.CommandID, new UpstreamCommandRegistered() { CommandType = commandType, Handler = handler });
+            return new RegisteredClassDisposable(() => _registeredCommands.Remove(attribute.CommandID));
         }
 
         private async void readingThread(CancellationToken cancellationToken)
@@ -96,24 +141,71 @@ namespace KarolK72.LegoAssignment.Library
 
                 if (eoc)
                 {
-                    Payload? parsedPayload = null;
-                    try
-                    {
-                        parsedPayload = Payload.Parse(data);
-                    } catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"Exception thrown when parsing socket data as a Payload\nData:{data}");
-                    }
-                    eoc = false;
-                    if (parsedPayload is null) {
-                        _logger.LogError($"Failed to parse socket data as a payload\nData:{data}");
-                        data = string.Empty;
-                        continue;
-                    }
-                    _logger.LogDebug($"Data parsed sucesfully!\nData:{data}\nParsed Payload:{parsedPayload}");
-                    data = string.Empty;
 
+                    string leftOver = string.Empty;
+                    List<string> commands = new List<string>();
 
+                    string firstCommand = data.Substring(0, data.IndexOf(";") + 1);
+                    commands.Add(firstCommand);
+                    string rest = data.Substring(data.IndexOf(";") + 1);
+
+                    bool reachedEnd = false;
+                    while (!reachedEnd)
+                    {
+                        if (rest.IndexOf(";") > -1)
+                        {
+                            commands.Add(rest.Substring(0, rest.IndexOf(";") + 1));
+                            rest = rest.Substring(rest.IndexOf(";") + 1);
+                        }
+                        else
+                        {
+                            if (rest.Length > 0)
+                            {
+                                leftOver = rest;
+                            }
+                            reachedEnd = true;
+                        }
+                    }
+
+                    foreach (string commandString in commands)
+                    {
+                        Payload? parsedPayload = null;
+                        try
+                        {
+                            parsedPayload = Payload.Parse(commandString);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, $"Exception thrown when parsing socket data as a Payload\nData:{commandString}");
+                        }
+                        eoc = false;
+                        if (parsedPayload is null)
+                        {
+                            _logger.LogError($"Failed to parse socket data as a payload\nData:{commandString}");
+                            continue;
+                        }
+                        _logger.LogInformation($"Data parsed sucesfully!\nData:{commandString}\nParsed Payload:{parsedPayload}");
+
+                        if (_registeredCommands.TryGetValue(parsedPayload.CommandID, out var regCommand))
+                        {
+                            IUpstreamCommand? upstreamCommand = Activator.CreateInstance(regCommand.CommandType) as IUpstreamCommand;
+                            if (upstreamCommand is null)
+                            {
+                                _logger.LogError($"Could not create an instance of the command {regCommand.CommandType.Name}");
+                            }
+                            else
+                            {
+                                upstreamCommand.ParsePayload(parsedPayload);
+                                _ = regCommand.Handler.Invoke(upstreamCommand).ConfigureAwait(false);
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"No handler registered for command {parsedPayload.CommandID}");
+                        }
+                    }
+
+                    data = leftOver;
                 } else
                 {
                     break;

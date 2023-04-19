@@ -1,4 +1,5 @@
 ﻿using KarolK72.LegoAssignment.Library;
+using KarolK72.LegoAssignment.Library.Commands.Upstream;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,9 +32,16 @@ namespace KarolK72.LegoAssignment.UI.ViewModels
 
         public ICommand ConnectCommand { private set; get; }
         public ICommand TestCommand { private set; get; }
+
+
         public MainViewModel(IEV3CommunicationService ev3CommuncationService)
         {
             _ev3CommunicationService = ev3CommuncationService;
+            _ev3CommunicationService.RegisterHandler(typeof(DetectedCommand), (command) =>
+            {
+                Label = $"Detected: {(command as DetectedCommand).Colour}";
+                return Task.CompletedTask;
+            });
             ConnectCommand = new Command(
                 execute: async () =>
                 {
