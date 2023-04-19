@@ -5,9 +5,11 @@ VisualStudioVersion = 17.3.32804.467
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KarolK72.LegoAssignment.Library", "KarolK72.LegoAssignment.Library\KarolK72.LegoAssignment.Library.csproj", "{C4ECDFD4-0818-483C-B468-B6BDAF773BBD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KarolK72.LegoAssignment.UI", "KarolK72.LegoAssignment.UI\KarolK72.LegoAssignment.UI.csproj", "{435B50CB-CD7D-467E-A3B8-821AB121586B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{73493630-68FB-4961-A5DC-8B5210A4F6EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{73493630-68FB-4961-A5DC-8B5210A4F6EB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KarolK72.LegoAssignment.UI", "KarolK72.LegoAssignment.UI\KarolK72.LegoAssignment.UI.csproj", "{A1B38726-D692-481A-9B56-637A5DCAC3AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KarolK72.LegoAssignment.Tests", "KarolK72.LegoAssignment.Tests\KarolK72.LegoAssignment.Tests.csproj", "{F089BB11-6F6F-4AB4-BD18-54436AAC8B7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +21,20 @@ Global
 		{C4ECDFD4-0818-483C-B468-B6BDAF773BBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4ECDFD4-0818-483C-B468-B6BDAF773BBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4ECDFD4-0818-483C-B468-B6BDAF773BBD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{435B50CB-CD7D-467E-A3B8-821AB121586B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{435B50CB-CD7D-467E-A3B8-821AB121586B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{435B50CB-CD7D-467E-A3B8-821AB121586B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{435B50CB-CD7D-467E-A3B8-821AB121586B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{73493630-68FB-4961-A5DC-8B5210A4F6EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{73493630-68FB-4961-A5DC-8B5210A4F6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73493630-68FB-4961-A5DC-8B5210A4F6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73493630-68FB-4961-A5DC-8B5210A4F6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B38726-D692-481A-9B56-637A5DCAC3AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B38726-D692-481A-9B56-637A5DCAC3AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B38726-D692-481A-9B56-637A5DCAC3AA}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A1B38726-D692-481A-9B56-637A5DCAC3AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B38726-D692-481A-9B56-637A5DCAC3AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B38726-D692-481A-9B56-637A5DCAC3AA}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{F089BB11-6F6F-4AB4-BD18-54436AAC8B7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F089BB11-6F6F-4AB4-BD18-54436AAC8B7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F089BB11-6F6F-4AB4-BD18-54436AAC8B7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F089BB11-6F6F-4AB4-BD18-54436AAC8B7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
