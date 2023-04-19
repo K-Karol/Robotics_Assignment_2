@@ -6,21 +6,31 @@ from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
 from pybricks.media.ev3dev import SoundFile, ImageFile
-import socket
+from socket_connection import SocketConnection
+import time
+from payload import Payload
 
 port = 5000
 ev3 = EV3Brick()
-client = None
+socket_connection = SocketConnection(5000)
 
+ev3.screen.draw_text(0,0,"Connect")
+ev3.speaker.say("Waiting for connection")
+ev3.screen.draw_text(0,20,"@ " + str(port))
 
-addr = socket.getaddrinfo('0.0.0.0', port)[0][-1]
+socket_connection.start()
 
-s = socket.socket()
-s.bind(addr)
-s.listen(1)
-
-ev3.screen.draw_text(10,10,"Waiting for operator connection...")
-ev3.screen.draw_text(10,20,"Hosting on port " + str(port))
-client, client_address = s.accept()
 ev3.screen.clear()
 ev3.speaker.beep()
+
+ev3.screen.draw_text(0,0,"Running")
+
+while True:
+    if Button.CENTER in ev3.buttons.pressed():
+        break
+
+
+
+ev3.speaker.beep()
+
+socket_connection.close()
