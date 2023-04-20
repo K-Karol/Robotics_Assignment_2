@@ -38,6 +38,7 @@ class SocketConnection:
                 
     def close(self):
         self.stop = True
+        self.socket.shutdown()
         self.socket.close()
     def reader(self):
         print("Starting read")

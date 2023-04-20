@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:KarolK72.LegoAssignment.UI.ViewModels"
+             x:Class="KarolK72.LegoAssignment.UI.Views.MainViewDesktop"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:validation="clr-namespace:KarolK72.LegoAssignment.UI.Validation"
+             >
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.3*"/>
+            <ColumnDefinition Width="0.3*"/>
+            <ColumnDefinition Width="0.3*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.5*"/>
+            <!--<RowDefinition Height="0.5*"/>-->
+        </Grid.RowDefinitions>
+
+        <Frame Grid.Row="0" Grid.Column="0" BackgroundColor="Transparent" BorderColor="Gray" Margin="50">
+            
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Text="Status:" Grid.Row="0" Grid.Column="0"  HorizontalTextAlignment="Center" Margin="0,0,10,0"/>
+                <Label Text="{Binding StatusLabel}" Grid.Row="0" Grid.Column="1"  HorizontalTextAlignment="Start"/>
+                <ActivityIndicator IsRunning="{Binding IsLoading}" Grid.Row="0" Grid.Column="2"/>
+                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="5,10,5,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Text="Host" Grid.Row="0" Grid.Column="0" Margin="0,0,10,0" VerticalTextAlignment="Center"/>
+                    <Entry Text="{Binding HostURL}" Grid.Row="0" Grid.Column="1" MinimumWidthRequest="300">
+                        <Entry.Behaviors>
+                            <validation:UrlValidationBehaviour
+                                InvalidStyle="{StaticResource EntryInvalid}"
+                                Flags="ValidateOnValueChanged"
+                                />
+                        </Entry.Behaviors>
+                    </Entry>
+                    <Label Text="Port" Grid.Row="1" Grid.Column="0" Margin="0,0,10,0" VerticalTextAlignment="Center"/>
+                    <Entry Text="{Binding HostPort}" Keyboard="Numeric" Grid.Row="1" Grid.Column="1" MinimumWidthRequest="300">
+                        <Entry.Behaviors>
+                            <toolkit:NumericValidationBehavior 
+                                InvalidStyle="{StaticResource EntryInvalid}"
+                                Flags="ValidateOnValueChanged"
+                                MinimumValue="1"
+                                MaximumValue="65535"
+                                MaximumDecimalPlaces="0" />
+                        </Entry.Behaviors>
+                    </Entry>
+
+                </Grid>
+
+                <Button HorizontalOptions="Center" Margin="0,40,0,0" Command="{Binding ConnectDisconnectCommand}" IsEnabled="{Binding IsConnectButtonEnabled}" Text="{Binding ConnectDisconnectButtonText}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"/>
+                
+            </Grid>
+        </Frame>
+
+        <Frame Grid.Row="0" Grid.Column="1" BackgroundColor="Transparent" BorderColor="Gray" Margin="50">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="0.7*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Label Text="No. of Processed Items:" Grid.Row="0" Grid.Column="0" Margin="0,0,20,0"/>
+                <Label Text="No. of Rejected Items:" Grid.Row="1" Grid.Column="0" Margin="0,0,20,0"/>
+                <Label Text="Rejection Rate:" Grid.Row="2" Grid.Column="0" Margin="0,0,20,0"/>
+
+                <Label Text="{Binding NoOfProcessedItems}" Grid.Row="0" Grid.Column="1"/>
+                <Label Text="{Binding NoOfRejectedItems}" Grid.Row="1" Grid.Column="1"/>
+                <Label Text="{Binding RejectionRate}" Grid.Row="2" Grid.Column="1"/>
+
+
+            </Grid>
+        </Frame>
+        
+        <!--<StackLayout BackgroundColor="Green" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>-->
+        <Frame Grid.Row="0" Grid.Column="2" BackgroundColor="Transparent" BorderColor="Gray" Margin="50" >
+            
+        </Frame>
+    </Grid>
+    
+</ContentView>

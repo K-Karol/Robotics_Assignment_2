@@ -47,21 +47,15 @@ namespace KarolK72.LegoAssignment.Library
 
         public async Task Connect(string url, int port)
         {
-            _logger.LogInformation("1");
-            IPHostEntry ipHostInfo = await Dns.GetHostEntryAsync(url);
-            _logger.LogInformation("2");
+            IPHostEntry ipHostInfo = await Task.Run(() => Dns.GetHostEntry(url));
             IPAddress? ipAddress = ipHostInfo.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
-            _logger.LogInformation("3");
             if (ipAddress is null)
             {
                 ipAddress = ipHostInfo.AddressList.First();
             }
             IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, port);
-            _logger.LogInformation("4");
             _socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            _logger.LogInformation("5");
             await _socket.ConnectAsync(ipEndPoint);
-            _logger.LogInformation("6");
             _cts = new CancellationTokenSource();
             _readingThread = new Thread(() => readingThread(_cts.Token));
             _readingThread.Start();
@@ -184,7 +178,7 @@ namespace KarolK72.LegoAssignment.Library
                             _logger.LogError($"Failed to parse socket data as a payload\nData:{commandString}");
                             continue;
                         }
-                        _logger.LogInformation($"Data parsed sucesfully!\nData:{commandString}\nParsed Payload:{parsedPayload}");
+                        _logger.LogDebug($"Data parsed sucesfully!\nData:{commandString}\nParsed Payload:{parsedPayload}");
 
                         if (_registeredCommands.TryGetValue(parsedPayload.CommandID, out var regCommand))
                         {

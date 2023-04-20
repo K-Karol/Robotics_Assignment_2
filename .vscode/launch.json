@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+			"name": "Download and Run",
+			"type": "ev3devBrowser",
+			"request": "launch",
+			"program": "/home/robot/${workspaceRootFolderName}/ev3_firmware/main.py",
+			"interactiveTerminal": false
+		},
+        {
             "name": "Download and Run current file",
             "type": "ev3devBrowser",
             "request": "launch",
@@ -17,6 +24,6 @@
             "request": "launch",
             "program": "/home/robot/${workspaceFolderBasename}/my-program (replace 'my-program' with the actual path)",
             "interactiveTerminal": true
-        }
+        },
     ]
 }

@@ -12,6 +12,8 @@ from socket_connection import SocketConnection
 from configuration import Configuration
 from payload import Payload
 
+import sys
+
 port = 5000
 socket_connection = SocketConnection(5000)
 config = Configuration()
@@ -25,7 +27,12 @@ ev3.screen.draw_text(0,0,"Connect")
 ev3.speaker.say("Waiting for connection")
 ev3.screen.draw_text(0,20,"@ " + str(port))
 
-socket_connection.start()
+
+try:
+    socket_connection.start()
+except:
+    ev3.speaker.say("Failed to initialise a socket server on the port " + str(port) + ". Exiting...")
+    sys.exit()
 
 ev3.screen.clear()
 ev3.speaker.beep()
@@ -45,7 +52,7 @@ while True:
         previous_col = None
         socket_connection.dispatch(Payload(1,{"Colour":detected_colour, "IsRejected":"true"}))
         time.sleep(0.3)
-        rejection_motor.run_angle(864,360)
+        rejection_motor.run_angle(864,360, wait= True)
     elif (detected_colour != None):
         if(previous_col != detected_colour):
             socket_connection.dispatch(Payload(1,{"Colour":detected_colour, "IsRejected":"false"}))
