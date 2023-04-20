@@ -11,7 +11,6 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.3*"/>
             <ColumnDefinition Width="0.3*"/>
-            <ColumnDefinition Width="0.3*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.5*"/>
@@ -22,6 +21,7 @@
             
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
@@ -67,9 +67,28 @@
                     </Entry>
 
                 </Grid>
-
                 <Button HorizontalOptions="Center" Margin="0,40,0,0" Command="{Binding ConnectDisconnectCommand}" IsEnabled="{Binding IsConnectButtonEnabled}" Text="{Binding ConnectDisconnectButtonText}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"/>
-                
+                <VerticalStackLayout Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,20,0,0">
+                    <Button Text="Fetch newest config" Command="{Binding GetConfigCommand}"/>
+                    <HorizontalStackLayout>
+                        <Label Text="Is Blacklist?" VerticalOptions="Center"/>
+                        <CheckBox IsChecked="{Binding IsBlacklist}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="List of Colours" VerticalOptions="Center"></Label>
+                        <CollectionView SelectionMode="Multiple" ItemsSource="{Binding ColourOptions}" SelectedItems="{Binding ColoursList}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <HorizontalStackLayout Padding="20,0,0,0">
+                                        <Label Text="{Binding Colour}"/>
+                                    </HorizontalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </HorizontalStackLayout>
+                    <Button Text="Update configuration" Command="{Binding UpdateConfigurationCommand}"/>
+                </VerticalStackLayout>
+
             </Grid>
         </Frame>
 
@@ -97,10 +116,7 @@
             </Grid>
         </Frame>
         
-        <!--<StackLayout BackgroundColor="Green" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>-->
-        <Frame Grid.Row="0" Grid.Column="2" BackgroundColor="Transparent" BorderColor="Gray" Margin="50" >
-            
-        </Frame>
+        
     </Grid>
     
 </ContentView>

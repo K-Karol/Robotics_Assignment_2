@@ -15,6 +15,7 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
@@ -23,7 +24,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Label Text="Status:" Grid.Row="0" Grid.Column="0"  HorizontalTextAlignment="Center" Margin="0,0,10,0"/>
-                    <Label Text="{Binding StatusLabel}" Grid.Row="0" Grid.Column="1"  HorizontalTextAlignment="Start"/>
+                    <Label Text="{Binding StatusLabel}" Grid.Row="0" Grid.Column="1"  HorizontalTextAlignment="Start" LineBreakMode="WordWrap"/>
                     <ActivityIndicator IsRunning="{Binding IsLoading}" Grid.Row="0" Grid.Column="2"/>
                     <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="5,10,5,0">
                         <Grid.ColumnDefinitions>
@@ -57,6 +58,26 @@
                         </Entry>
                     </Grid>
                     <Button HorizontalOptions="CenterAndExpand" Margin="0,40,0,0" Command="{Binding ConnectDisconnectCommand}" IsEnabled="{Binding IsConnectButtonEnabled}" Text="{Binding ConnectDisconnectButtonText}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"/>
+                    <VerticalStackLayout Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,20,0,0">
+                        <Button Text="Fetch newest config" Command="{Binding GetConfigCommand}"/>
+                        <HorizontalStackLayout>
+                            <Label Text="Is Blacklist?" VerticalOptions="Center"/>
+                            <CheckBox IsChecked="{Binding IsBlacklist}"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout>
+                            <Label Text="List of Colours" VerticalOptions="Center"></Label>
+                            <CollectionView SelectionMode="Multiple" ItemsSource="{Binding ColourOptions}" SelectedItems="{Binding ColoursList}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <HorizontalStackLayout Padding="20,10,0,10">
+                                            <Label Text="{Binding Colour}"/>
+                                        </HorizontalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </HorizontalStackLayout>
+                        <Button Text="Update configuration" Command="{Binding UpdateConfigurationCommand}"/>
+                    </VerticalStackLayout>
 
                 </Grid>
             </Frame>
@@ -79,15 +100,11 @@
                     <Label Text="{Binding NoOfProcessedItems}" Grid.Row="0" Grid.Column="1"/>
                     <Label Text="{Binding NoOfRejectedItems}" Grid.Row="1" Grid.Column="1"/>
                     <Label Text="{Binding RejectionRate}" Grid.Row="2" Grid.Column="1"/>
-
-
                 </Grid>
             </Frame>
 
-            <!--<StackLayout BackgroundColor="Green" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>-->
-            <Frame BackgroundColor="Transparent" BorderColor="Gray" Margin="50" Padding="100">
+            
 
-            </Frame>
         </StackLayout>
         
 

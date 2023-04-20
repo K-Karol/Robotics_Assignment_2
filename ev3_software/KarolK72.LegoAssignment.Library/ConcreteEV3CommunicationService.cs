@@ -47,12 +47,18 @@ namespace KarolK72.LegoAssignment.Library
 
         public async Task Connect(string url, int port)
         {
-            IPHostEntry ipHostInfo = await Task.Run(() => Dns.GetHostEntry(url));
-            IPAddress? ipAddress = ipHostInfo.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
-            if (ipAddress is null)
+            IPAddress? ipAddress = null;
+            if (!IPAddress.TryParse(url, out ipAddress))
             {
-                ipAddress = ipHostInfo.AddressList.First();
+                IPHostEntry ipHostInfo = await Task.Run(() => Dns.GetHostEntry(url));
+                ipAddress = ipHostInfo.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
+                if (ipAddress is null)
+                {
+                    ipAddress = ipHostInfo.AddressList.First();
+                }
             }
+
+            
             IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, port);
             _socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             await _socket.ConnectAsync(ipEndPoint);

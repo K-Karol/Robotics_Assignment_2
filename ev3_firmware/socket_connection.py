@@ -38,7 +38,6 @@ class SocketConnection:
                 
     def close(self):
         self.stop = True
-        self.socket.shutdown()
         self.socket.close()
     def reader(self):
         print("Starting read")
@@ -46,14 +45,14 @@ class SocketConnection:
             data = None
             try:
                 data = self.client.recv(1024)
-            except TimeoutError as e:
+            except timeout as e:
                 err = e.args[0]
                 if err == 'timed out':
                     time.sleep(1)
                     continue
                 else:
                     print(e)
-            except OSError as e:
+            except error as e:
                  print(e)
             if not data:
                 continue
