@@ -1,12 +1,10 @@
 ﻿using CommunityToolkit.Maui.Behaviors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KarolK72.LegoAssignment.UI.Validation
 {
+    /// <summary>
+    /// Validates whether a field contains a valid Url (hostname and IP address and not empty)
+    /// </summary>
     internal class UrlValidationBehaviour : ValidationBehavior<string>
     {
         protected override ValueTask<bool> ValidateAsync(string value, CancellationToken token)

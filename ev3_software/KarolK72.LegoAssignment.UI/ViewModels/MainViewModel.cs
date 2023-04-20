@@ -1,16 +1,14 @@
 ﻿using KarolK72.LegoAssignment.Library;
 using KarolK72.LegoAssignment.Library.Commands.Downstream;
 using KarolK72.LegoAssignment.Library.Commands.Upstream;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace KarolK72.LegoAssignment.UI.ViewModels
 {
+    /// <summary>
+    /// Contains all of the business logic of the dashboard, seperated from the UI.
+    /// Contains properties that are bound to the UI, including commands
+    /// </summary>
     public class MainViewModel : BasePropertyChangedClass, IDisposable
     {
         private bool disposedValue;
@@ -89,22 +87,65 @@ namespace KarolK72.LegoAssignment.UI.ViewModels
         public int NoOfProcessedItems => _noOfProcessedItems;
         private int _noOfRejectedItems = 0;
         public int NoOfRejectedItems => _noOfRejectedItems;
-        public string RejectionRate =>  _noOfProcessedItems > 0 ? $"{(float)_noOfRejectedItems / (float)_noOfProcessedItems:P2}" : "N/A";
+        public string RejectionRate => _noOfProcessedItems > 0 ? $"{(float)_noOfRejectedItems / (float)_noOfProcessedItems:P2}" : "N/A";
 
         private ICommand _connectCommand;
         private ICommand _disconnectCommand;
+        /// <summary>
+        /// Either runs the connect or disconnect command based on the state.
+        /// </summary>
         public ICommand ConnectDisconnectCommand => !_isConnected ? _connectCommand : _disconnectCommand;
+        /// <summary>
+        /// Dispatches a <see cref="GetCurrentConfigurationCommand"/> to the robot
+        /// </summary>
         public ICommand GetConfigCommand { get; private set; }
+        /// <summary>
+        /// Dispatches a <see cref="UpdateConfigurationCommand"/> to the robot
+        /// </summary>
+
+        /* Unmerged change from project 'KarolK72.LegoAssignment.UI (net7.0-ios)'
+        Before:
+                public ICommand UpdateConfigurationCommand { get; private set; }
+
+
+                public MainViewModel(IEV3CommunicationService ev3CommuncationService)
+        After:
+                public ICommand UpdateConfigurationCommand { get; private set; }
+
+
+                public MainViewModel(IEV3CommunicationService ev3CommuncationService)
+        */
+
+        /* Unmerged change from project 'KarolK72.LegoAssignment.UI (net7.0-windows10.0.19041.0)'
+        Before:
+                public ICommand UpdateConfigurationCommand { get; private set; }
+
+
+                public MainViewModel(IEV3CommunicationService ev3CommuncationService)
+        After:
+                public ICommand UpdateConfigurationCommand { get; private set; }
+
+
+                public MainViewModel(IEV3CommunicationService ev3CommuncationService)
+        */
+
+        /* Unmerged change from project 'KarolK72.LegoAssignment.UI (net7.0-maccatalyst)'
+        Before:
+                public ICommand UpdateConfigurationCommand { get; private set; }
+
+
+                public MainViewModel(IEV3CommunicationService ev3CommuncationService)
+        After:
+                public ICommand UpdateConfigurationCommand { get; private set; }
+
+
+                public MainViewModel(IEV3CommunicationService ev3CommuncationService)
+        */
         public ICommand UpdateConfigurationCommand { get; private set; }
-        
+
 
         public MainViewModel(IEV3CommunicationService ev3CommuncationService)
         {
-
-            //_largeNotificationTimer = new Timer((state) => { 
-            //    _largeNotificationLabel = "~";
-            //    OnPropertyChanged(nameof(LargeNotificationLabel));
-            //},null,Timeout.Infinite, Timeout.Infinite);
 
             _ev3CommunicationService = ev3CommuncationService;
             _ev3CommunicationService.RegisterHandler(typeof(DetectedCommand), (command) =>
@@ -120,6 +161,7 @@ namespace KarolK72.LegoAssignment.UI.ViewModels
             _connectCommand = new Command(
                 execute: async () =>
                 {
+                    //connects to the robot using the IEV3CommunicationService
                     IsLoading = true;
                     try
                     {
@@ -127,7 +169,8 @@ namespace KarolK72.LegoAssignment.UI.ViewModels
                         await _ev3CommunicationService.Connect(_hostURL, _hostPort);
                         StatusLabel = "Connected";
                         _isConnected = true;
-                    } catch (Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         StatusLabel = $"Failed: {ex.Message}";
                         _isConnected = false;
@@ -141,6 +184,7 @@ namespace KarolK72.LegoAssignment.UI.ViewModels
             _disconnectCommand = new Command(
                 execute: async () =>
                 {
+                    //disconnects from the robot using the IEV3CommunicationService
                     IsLoading = true;
                     try
                     {
@@ -162,6 +206,7 @@ namespace KarolK72.LegoAssignment.UI.ViewModels
 
             GetConfigCommand = new Command(execute: async () =>
             {
+                // sends a GetCurrentConfigurationCommand command to the robot
                 IsLoading = true;
                 await _ev3CommunicationService.Dispatch(new GetCurrentConfigurationCommand().ConvertToPayload());
                 IsLoading = false;
@@ -169,12 +214,17 @@ namespace KarolK72.LegoAssignment.UI.ViewModels
 
             UpdateConfigurationCommand = new Command(execute: async () =>
             {
+                // sends a UpdateConfigurationCommand command with configuration details  to the robot
                 IsLoading = true;
                 await _ev3CommunicationService.Dispatch(new UpdateConfigurationCommand(_isBlacklist, _coloursList.Select(c => ((ColourWrapper)c).Colour).ToList()).ConvertToPayload());
                 IsLoading = false;
             });
         }
 
+        /// <summary>
+        /// Handler for handling when an item was detected. Used for statistics
+        /// </summary>
+        /// <param name="detectedCommand"></param>
         private void DetectedHandler(DetectedCommand detectedCommand)
         {
             _noOfProcessedItems += 1;
@@ -197,10 +247,14 @@ namespace KarolK72.LegoAssignment.UI.ViewModels
 
         }
 
+        /// <summary>
+        /// Handles when the robot sends their configuration so the UI can be updated
+        /// </summary>
+        /// <param name="currentConfigurationCommand"></param>
         private void UpdateConfigurationHandler(CurrentConfigurationCommand currentConfigurationCommand)
         {
             IsBlacklist = currentConfigurationCommand.IsBlackList;
-            ColoursList = currentConfigurationCommand.ColourList.Select(c => _colourOptions.FirstOrDefault(cw => cw.Colour == c) ?? new ColourWrapper() { Colour = c } as object).ToList();
+            ColoursList = currentConfigurationCommand.ColourList.Select(c => _colourOptions.FirstOrDefault(cw => cw.Colour == c) ?? new ColourWrapper() { Colour = c } as object).ToList(); // wraps the colour string in a ColourWrapper that needs to be converted into an object for the UI (idk why it needs to be an object, its a bug?)
         }
 
         protected virtual void Dispose(bool disposing)

@@ -8,6 +8,7 @@ from payload_queue import PayloadQueue
 #https://stackoverflow.com/questions/16745409/what-does-pythons-socket-recv-return-for-non-blocking-sockets-if-no-data-is-r
 
 class SocketConnection:
+    '''This class handles the socket connection, allowing to start a connection, wait for the client to connect, and both writing and reading from the socket connection.'''
     port = 5000
     socket = None
     client = None
@@ -18,6 +19,7 @@ class SocketConnection:
          self.port = port
          self.payloads = PayloadQueue()
     def start(self):
+        """Starts the socket connection and waits for the client to connect"""
         addr = socket.getaddrinfo('0.0.0.0', self.port)[0][-1]
         self.socket = socket.socket()
         self.socket.bind(addr)
@@ -37,9 +39,11 @@ class SocketConnection:
                     raise e
                 
     def close(self):
+        """Stops the reader thread and closes the socket connection"""
         self.stop = True
         self.socket.close()
     def reader(self):
+        """This function is ran on a seperate thread that reads from the socket connection, parses the data as a Payload and pushes the payload to the queue"""
         print("Starting read")
         while not self.stop:
             data = None

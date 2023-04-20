@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 
 namespace KarolK72.LegoAssignment.Library.Commands.Downstream
 {
-
+    /// <summary>
+    /// Downstream command that requests the robot to transmit a payload that represents the <see cref="Commands.Upstream.CurrentConfigurationCommand"/>
+    /// </summary>
     [Command(1)]
     public class GetCurrentConfigurationCommand : IDownstreamCommand
     {

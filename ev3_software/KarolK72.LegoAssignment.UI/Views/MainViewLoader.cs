@@ -1,13 +1,18 @@
 namespace KarolK72.LegoAssignment.UI.Views;
 
+/// <summary>
+/// Handles changing the view baseed on the orientation, device and window size
+/// (so mobile/portrait/narrow window gets <see cref="MainViewMobile"/>
+/// whilst desktop/landscape gets <see cref="MainViewDesktop"/>
+/// </summary>
 public class MainViewLoader : ContentView
 {
-	private MainViewDesktop _desktopView;
-	private MainViewMobile _mobileView;
-	public MainViewLoader(MainViewDesktop desktopView, MainViewMobile mobileView)
-	{
-		_desktopView = desktopView;
-		_mobileView = mobileView;
+    private MainViewDesktop _desktopView;
+    private MainViewMobile _mobileView;
+    public MainViewLoader(MainViewDesktop desktopView, MainViewMobile mobileView)
+    {
+        _desktopView = desktopView;
+        _mobileView = mobileView;
 
         DeviceDisplay.Current.MainDisplayInfoChanged += Current_MainDisplayInfoChanged;
 
@@ -33,9 +38,9 @@ public class MainViewLoader : ContentView
     {
         base.OnSizeAllocated(width, height);
 
-        if(DeviceInfo.Current.Idiom == DeviceIdiom.Desktop)
+        if (DeviceInfo.Current.Idiom == DeviceIdiom.Desktop)
         {
-            if (width <= 1150)
+            if (width <= 1150) // imagine this as a CSS media query for responsive design
             {
                 this.Content = _mobileView;
             }
@@ -45,6 +50,6 @@ public class MainViewLoader : ContentView
             }
         }
 
-        
+
     }
 }

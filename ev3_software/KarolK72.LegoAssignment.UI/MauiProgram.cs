@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Maui;
 using KarolK72.LegoAssignment.Library;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui.LifecycleEvents;
 
 namespace KarolK72.LegoAssignment.UI
 {
@@ -27,7 +26,10 @@ namespace KarolK72.LegoAssignment.UI
             return builder.Build();
         }
 
-
+        /// <summary>
+        /// Configures the dependency injection container (IoC).
+        /// </summary>
+        /// <param name="serviceCollection"></param>
         private static void ConfigureService(IServiceCollection serviceCollection)
         {
             serviceCollection.AddLogging(loggingBuilder =>
@@ -39,12 +41,12 @@ namespace KarolK72.LegoAssignment.UI
 #endif
             });
 
-            serviceCollection.AddSingleton<IEV3CommunicationService, ConcreteEV3CommunicationService>();
+            serviceCollection.AddSingleton<IEV3CommunicationService, ConcreteEV3CommunicationService>(); // registering the concrete implementation of the IEV3CommunicationService
 
             //view models
-            serviceCollection.AddSingleton<ViewModels.MainViewModel>();
+            serviceCollection.AddSingleton<ViewModels.MainViewModel>(); // there is only one *page* and the view model is shared with both MainViewDesktop and MainViewMobile so it is reg. as a singleton
 
-            //pages
+            //pages - registering a page means it will get deps. injected.
             serviceCollection.AddTransient<Views.MainViewLoader>();
             serviceCollection.AddTransient<Views.MainView>();
             serviceCollection.AddTransient<Views.MainViewDesktop>();

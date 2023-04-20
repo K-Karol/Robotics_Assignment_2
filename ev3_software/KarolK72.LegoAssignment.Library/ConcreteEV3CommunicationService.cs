@@ -1,27 +1,30 @@
 ﻿using KarolK72.LegoAssignment.Library.Commands;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace KarolK72.LegoAssignment.Library
 {
+    /// <summary>
+    /// Wrapper class that stores registered callbacks.
+    /// </summary>
     public class UpstreamCommandRegistered
     {
         public Type CommandType { get; set; }
         public Func<IUpstreamCommand, Task> Handler { get; set; }
     }
 
-
+    /// <summary>
+    /// Disposable object used by <see cref="ConcreteEV3CommunicationService.RegisterHandler(Type, Func{IUpstreamCommand, Task})"/>
+    /// that will run an action when disposed that unregisters the callback.
+    /// </summary>
     public class RegisteredClassDisposable : IDisposable
     {
         private Action _deleteRegisteredCommandAction;
-        public RegisteredClassDisposable(Action deleteRegisteredCommandAction) {
+        public RegisteredClassDisposable(Action deleteRegisteredCommandAction)
+        {
             _deleteRegisteredCommandAction = deleteRegisteredCommandAction;
         }
         public void Dispose()
@@ -30,6 +33,9 @@ namespace KarolK72.LegoAssignment.Library
         }
     }
 
+    /// <summary>
+    /// Concrete implementation of the <see cref="IEV3CommunicationService"/>
+    /// </summary>
     public class ConcreteEV3CommunicationService : IEV3CommunicationService
     {
         private readonly ILogger<ConcreteEV3CommunicationService> _logger;
@@ -58,7 +64,7 @@ namespace KarolK72.LegoAssignment.Library
                 }
             }
 
-            
+
             IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, port);
             _socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             await _socket.ConnectAsync(ipEndPoint);
@@ -69,7 +75,7 @@ namespace KarolK72.LegoAssignment.Library
 
         public Task Disconnect()
         {
-            if(_socket is null)
+            if (_socket is null)
             {
                 return Task.CompletedTask;
             }
@@ -91,7 +97,7 @@ namespace KarolK72.LegoAssignment.Library
 
         public IDisposable? RegisterHandler(Type commandType, Func<IUpstreamCommand, Task> handler)
         {
-            var attribute = commandType.GetCustomAttribute<CommandAttribute>();
+            var attribute = commandType.GetCustomAttribute<CommandAttribute>(); // The key of the dictionary is the commandID that is configured in the CommandAttribute on the command
             if (attribute is null)
                 throw new Exception($"{commandType.Name} does not have an {nameof(CommandAttribute)} attribute");
 
@@ -104,10 +110,15 @@ namespace KarolK72.LegoAssignment.Library
             return new RegisteredClassDisposable(() => _registeredCommands.Remove(attribute.CommandID));
         }
 
+        /// <summary>
+        /// This method is used in a dedicated reading thread that reads all data over the socket.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
         private async void readingThread(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting read");
-            while(!cancellationToken.IsCancellationRequested) {
+            while (!cancellationToken.IsCancellationRequested)
+            {
                 string data = string.Empty;
                 byte[] bytes = new byte[1024];
                 bool eoc = false;
@@ -120,28 +131,30 @@ namespace KarolK72.LegoAssignment.Library
                     }
                     try
                     {
-                        bytesRec = await _socket!.ReceiveAsync(bytes, SocketFlags.None, cancellationToken);
-                    } catch (TaskCanceledException tce)
+                        bytesRec = await _socket!.ReceiveAsync(bytes, SocketFlags.None, cancellationToken); //blocking operations so Async version is used as allows to specify a cancellation token
+                    }
+                    catch (TaskCanceledException tce)
                     {
                         break;
-                    } catch (Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         _logger.LogError(ex, "Exception when receiving");
                         continue;
                     }
-                    
 
 
-                    data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
-                    if(data.IndexOf(";") > -1)
+
+                    data += Encoding.ASCII.GetString(bytes, 0, bytesRec); // decodes bytes from the socket as a string
+                    if (data.IndexOf(";") > -1)
                     {
-                        eoc = true;
+                        eoc = true; //if a ; character is found, it signals an EndOfCommand
                     }
                 }
 
-                if (eoc)
+                if (eoc) // if a command was identified by the ; character
                 {
-
+                    // If the ev3 brick is fast enough, multiple commands can be contained within 1 packet/output of the ReceiveAsync function, so the following code handles that so no data is lost
                     string leftOver = string.Empty;
                     List<string> commands = new List<string>();
 
@@ -172,7 +185,7 @@ namespace KarolK72.LegoAssignment.Library
                         Payload? parsedPayload = null;
                         try
                         {
-                            parsedPayload = Payload.Parse(commandString);
+                            parsedPayload = Payload.Parse(commandString); // parses the payload
                         }
                         catch (Exception ex)
                         {
@@ -186,17 +199,17 @@ namespace KarolK72.LegoAssignment.Library
                         }
                         _logger.LogDebug($"Data parsed sucesfully!\nData:{commandString}\nParsed Payload:{parsedPayload}");
 
-                        if (_registeredCommands.TryGetValue(parsedPayload.CommandID, out var regCommand))
+                        if (_registeredCommands.TryGetValue(parsedPayload.CommandID, out var regCommand)) // sees if a handler was registered for the command ID of the payload
                         {
-                            IUpstreamCommand? upstreamCommand = Activator.CreateInstance(regCommand.CommandType) as IUpstreamCommand;
+                            IUpstreamCommand? upstreamCommand = Activator.CreateInstance(regCommand.CommandType) as IUpstreamCommand; // Creates an instance of the type that implements IUpstreamCommand that is registered in the callback
                             if (upstreamCommand is null)
                             {
                                 _logger.LogError($"Could not create an instance of the command {regCommand.CommandType.Name}");
                             }
                             else
                             {
-                                upstreamCommand.ParsePayload(parsedPayload);
-                                _ = regCommand.Handler.Invoke(upstreamCommand).ConfigureAwait(false);
+                                upstreamCommand.ParsePayload(parsedPayload); // passes the payload to the instance of the command so the command can parse the paramaters dict. into properties on the class itself
+                                _ = regCommand.Handler.Invoke(upstreamCommand).ConfigureAwait(false); // invokes the async handler using "fire and forget" 
                             }
                         }
                         else
@@ -206,14 +219,15 @@ namespace KarolK72.LegoAssignment.Library
                     }
 
                     data = leftOver;
-                } else
+                }
+                else
                 {
                     break;
                 }
 
             }
 
-            
+
         }
 
         protected virtual void Dispose(bool disposing)
@@ -250,6 +264,6 @@ namespace KarolK72.LegoAssignment.Library
             GC.SuppressFinalize(this);
         }
 
-        
+
     }
 }

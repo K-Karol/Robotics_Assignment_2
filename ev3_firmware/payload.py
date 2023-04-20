@@ -1,10 +1,13 @@
 class Payload:
+    '''This class is used to represent a payload received/sent over a socket connection. The class contains a `commandID` property (representing the Command ID number),
+    and `paramaters` property which is a Dictionary of Keys (string) and Values (string) which are parsed as command arguments'''
     commandID = 0,
     paramaters = {}
     def __init__(self, commandID, paramaters):
         self.commandID = commandID
         self.paramaters = paramaters
     def Parse(toParse):
+        """Parse a string and returns a Payload if successful, or None if not"""
         toParse = toParse.replace(';','')
         parts = toParse.split('|')
         if(len(parts) < 1):
@@ -27,6 +30,7 @@ class Payload:
         
         return Payload(commandID, params)
     def ToString(self):
+        """Encodes the Payload as a string and returns the string for transmission over the socket."""
         s = "#{}".format(self.commandID)
         if len(self.paramaters) < 0:
             s += ";"

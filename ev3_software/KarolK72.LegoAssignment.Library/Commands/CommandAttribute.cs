@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KarolK72.LegoAssignment.Library.Commands
+﻿namespace KarolK72.LegoAssignment.Library.Commands
 {
+    /// <summary>
+    /// Used to decorate commands with their command ID.
+    /// </summary>
     public class CommandAttribute : Attribute
     {
         private UInt16 _commandID = 0;

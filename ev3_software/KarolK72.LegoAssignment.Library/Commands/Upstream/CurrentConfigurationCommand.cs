@@ -1,18 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KarolK72.LegoAssignment.Library.Commands.Upstream
+﻿namespace KarolK72.LegoAssignment.Library.Commands.Upstream
 {
+    /// <summary>
+    /// This command contains the current configuration details sent by the robot.
+    /// </summary>
     [Command(2)]
     public class CurrentConfigurationCommand : IUpstreamCommand
     {
         private bool _isBlacklist = false;
+        /// <summary>
+        /// True/false robot configured to use the <see cref="ColourList"/> is a blacklist or a whitelist
+        /// </summary>
         public bool IsBlackList { get { return _isBlacklist; } private set { _isBlacklist = value; } }
 
         private List<string> _colourList = new List<string>();
+        /// <summary>
+        /// All colours (format Color.[COLOURNAME]) that are used by the robot as either a blacklist or whitelist
+        /// </summary>
         public List<string> ColourList { get { return _colourList; } private set { _colourList = value; } }
 
         private bool? _isValid;
@@ -34,7 +37,8 @@ namespace KarolK72.LegoAssignment.Library.Commands.Upstream
                         _isValid = false;
                         break;
                 }
-            } else
+            }
+            else
             {
                 _isValid = false;
             }
@@ -42,7 +46,8 @@ namespace KarolK72.LegoAssignment.Library.Commands.Upstream
             if (payload.Paramaters.ContainsKey(nameof(ColourList)))
             {
                 _colourList = payload.Paramaters[nameof(ColourList)].Split(",").ToList();
-            } else
+            }
+            else
             {
                 _isValid = false;
             }

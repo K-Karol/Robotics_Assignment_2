@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KarolK72.LegoAssignment.Library.Commands.Upstream
+﻿namespace KarolK72.LegoAssignment.Library.Commands.Upstream
 {
+    /// <summary>
+    /// This command contains the details of the latest scanned item by the robot incl. the colour and whether it was rejected or not.
+    /// </summary>
     [Command(1)]
     public class DetectedCommand : IUpstreamCommand
     {
         private bool _isRejected = false;
+        /// <summary>
+        /// True/False whether the item was rejected
+        /// </summary>
         public bool IsRejected { get { return _isRejected; } private set { _isRejected = value; } }
 
         private string _colour = string.Empty;
-        public string Colour { get { return _colour;} private set { _colour = value; } }
+        /// <summary>
+        /// The colour of the detected item
+        /// </summary>
+        public string Colour { get { return _colour; } private set { _colour = value; } }
         private bool? _isValid;
         public bool? IsValid => _isValid;
 
@@ -22,7 +25,8 @@ namespace KarolK72.LegoAssignment.Library.Commands.Upstream
             if (payload.Paramaters.ContainsKey(nameof(Colour)))
             {
                 _colour = payload.Paramaters[nameof(Colour)];
-            } else
+            }
+            else
             {
                 _isValid = false;
             }
