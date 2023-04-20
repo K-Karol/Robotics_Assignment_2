@@ -2,6 +2,11 @@
 
 Welcome to the repository containing the source code the second SHU Robotics assignment.
 
+Video Links:
+
+* Personal Google Drive: <https://drive.google.com/file/d/11D6XcvKT1-S02CLfEpxCy4ayH5hUoE-P/view?usp=sharing>
+* Network One Drive (Requires login): <https://sheffieldhallam-my.sharepoint.com/:v:/g/personal/b9018532_hallam_shu_ac_uk/EcJSjUiOpWZPqcfYhNvBb3IBVMpJ6L2-QPiDyLakUB9uGA?e=umS7IG>
+
 The repository is split into 2 sections:
 
 * **ev3_firmware**: Contains all of the MicroPython files that are deployed to the Lego Mindstorms EV3 hub.
